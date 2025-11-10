@@ -17,6 +17,7 @@ public:
     // Métodos públicos (API para usar desde el main.cpp)
     void begin();
     void showWelcomeMessage(String rc522_status);
+    void showMessage(String value, uint8_t size);
     void showAmountToPay(float amount);
     void showCardUID(String uid);
 

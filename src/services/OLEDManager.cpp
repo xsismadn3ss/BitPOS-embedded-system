@@ -23,6 +23,15 @@ void OLEDManager::begin()
     _display.display();
 }
 
+
+void OLEDManager::showMessage(String message, uint8_t size){
+    _display.clearDisplay();
+    _display.setTextSize(size);
+    _display.setCursor(0, 0);
+    _display.println(message);
+    _display.display();
+}
+
 /**
  * Muestra el mensaje inicial de bienvenida y estado del RC522.
  */
