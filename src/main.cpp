@@ -65,15 +65,18 @@ void loop() {
     while (uid.length() == 0) {
         // La lógica de lectura está encapsulada en RFIDManager
         uid = rfid.checkAndReadCard();
-        delay(100); 
+        delay(200); 
     }
     
     // 3. Tarjeta detectada
     Serial.print("[TX] Tarjeta Pagadora Detectada - UID: ");
     Serial.println(uid);
 
-    // 4. Mostrar UID en pantalla
+    // 4. Mostrar UID en pantalla y mensaje de transacción realizada
     oled.showCardUID(uid);
+    delay(500);
+    oled.showMessage("Pago realizado con exito", 1);
+    delay(1000);
 
     // --- AQUI VA LA FUTURA LÓGICA DE CONEXIÓN A INTERNET ---
     // En este punto, tendrías 'currentAmount' y 'uid' listos para enviar
