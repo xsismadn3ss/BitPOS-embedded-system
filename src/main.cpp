@@ -14,7 +14,7 @@
 // Pines I2C
 #define OLED_SDA    D2
 #define OLED_SCL    D1
-#define KEYPAD_I2C_ADDRESS 0x27 // ¡Verifica esta dirección en tu PCF8574!
+#define KEYPAD_I2C_ADDRESS 0x20
 
 // Pines SPI para RC522
 #define RC522_SS    D8
