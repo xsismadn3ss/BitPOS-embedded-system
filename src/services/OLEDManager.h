@@ -17,9 +17,11 @@ public:
     // Métodos públicos (API para usar desde el main.cpp)
     void begin();
     void showWelcomeMessage(String rc522_status);
+    void showPrompt(String promptLine1, String promptLine2);
     void showMessage(String value, uint8_t size);
     void showAmountToPay(float amount);
     void showCardUID(String uid);
+    void showAmountEntry(String amountStr);
 
 private:
     // Referencia privada a la instancia de la pantalla para poder manipularla.
