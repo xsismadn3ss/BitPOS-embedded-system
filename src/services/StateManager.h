@@ -1,3 +1,5 @@
+#include "AmountEntryHandler.h"
+
 #ifndef STATEMANAGER_H
 #define STATEMANAGER_H
 
@@ -41,6 +43,8 @@ private:
     // Variables de estado que deben persistir entre llamadas a run()
     float _currentAmount;
     String _uid;
+
+    AmountEntryHandler _amountHandler;
 
     // Métodos privados para manejar la lógica de cada estado
     void handleIdle();

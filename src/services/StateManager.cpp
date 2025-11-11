@@ -2,10 +2,11 @@
 #include "OLEDManager.h" 
 #include "RFIDManager.h"
 #include "KeypadManager.h"
+#include "AmountEntryHandler.h"
 
 // --- Constructor e Inicialización ---
 StateManager::StateManager(OLEDManager& oled, RFIDManager& rfid, KeypadManager& keypad)
-    : _oled(oled), _rfid(rfid), _keypad(keypad), 
+    : _oled(oled), _rfid(rfid), _keypad(keypad),
       _currentState(STATE_IDLE), _currentAmount(0.0) {}
 
 // --- Método Público Principal (El único llamado desde loop()) ---
@@ -30,33 +31,73 @@ void StateManager::run() {
 // --- Lógica Privada de los Estados ---
 
 void StateManager::handleIdle() {
-    _oled.showPrompt("Listo.", "Presione 'A' para iniciar TX"); // Mensaje de bienvenida
+    _oled.showMessage("Presiona 'A' para iniciar", 2);
 
     char key = _keypad.readKey();
     
     if (key == 'A') {
         _currentState = STATE_ENTERING_AMOUNT;
         Serial.println("[STATE] -> ENTERING_AMOUNT (TX iniciada)");
-        _oled.showAmountToPay(0.0); // Preparar OLED para la entrada
+
+        _amountHandler.reset();
+        _oled.showAmountEntry(_amountHandler.getString());
     } 
 }
 
 void StateManager::handleEnteringAmount() {
-    // Bloquea aquí hasta que el usuario termine de ingresar el monto y presione '#'
-    String montoStr = _keypad.getAmount(); 
-    _currentAmount = montoStr.toFloat();
-
-    if (_currentAmount > 0.0) {
-        _currentState = STATE_WAITING_RFID;
-        Serial.println("[STATE] -> WAITING_RFID");
-        _oled.showAmountToPay(_currentAmount); // Mostrar el monto final ingresado
-    } else {
-        _currentState = STATE_IDLE;
-        _oled.showPrompt("Monto invalido.", "Presione 'A' para iniciar TX");
+    // 1. Leer la tecla (no bloqueante)
+    char key = _keypad.readKey();
+    if (key == NO_KEY) {
+        return; // No hay tecla, no hacer nada. Salir.
     }
+
+    // 2. Procesar la tecla en el manejador
+    bool amountUpdated = _amountHandler.processKey(key);
+
+    // 3. Revisar si el manejador ha finalizado (presionó '#')
+    if (_amountHandler.isComplete()) {
+        _currentAmount = _amountHandler.getAmount();
+
+        if (_currentAmount > 0.0) {
+            _currentState = STATE_WAITING_RFID;
+            Serial.println("[STATE] -> WAITING_RFID");
+            _oled.showAmountToPay(_currentAmount); // Mostrar monto final
+        } else {
+            // Si el monto es 0 o inválido, regresar a IDLE
+            _currentState = STATE_IDLE;
+            // (El siguiente loop mostrará el mensaje de IDLE)
+        }
+    } 
+    // 4. Si la tecla fue válida (actualizó el monto), redibujar la pantalla
+    else if (amountUpdated) {
+        // ¡ACTUALIZACIÓN EN TIEMPO REAL!
+        _oled.showAmountEntry(_amountHandler.getString());
+    }
+    // (Si la tecla fue inválida, ej: 'B' o un segundo '.', no hace nada)
 }
 
 void StateManager::handleWaitingRFID() {
+    
+    // 1. REVISAR SI SE CANCELA
+    // Ahora este estado también escucha al teclado.
+    char key = _keypad.readKey();
+    if (key == 'C') {
+        _currentState = STATE_IDLE;
+        Serial.println("[STATE] -> IDLE (Cancelada por usuario)");
+        
+        // Limpiamos todo para la próxima transacción
+        _amountHandler.reset();
+        _currentAmount = 0.0;
+        _uid = "";
+        
+        // Dar retroalimentación visual
+        _oled.showPrompt("Transaccion", "CANCELADA");
+        delay(2000); // Mostrar el mensaje por 2 segundos
+        return; // Salir de la función
+    }
+
+    // 2. REVISAR SI HAY TARJETA (Lógica original)
+    // Si no se presionó 'C', buscamos una tarjeta.
     _uid = _rfid.checkAndReadCard();
     
     if (_uid.length() > 0) {
