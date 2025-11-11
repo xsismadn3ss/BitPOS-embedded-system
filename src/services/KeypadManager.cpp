@@ -1,62 +1,51 @@
 #include "KeypadManager.h"
-#include <Arduino.h> // Necesario para Serial.println(), delay(), etc.
+#include <Arduino.h>
 
-// La definición de BasicMatrixKeyboard está en la librería, 
-// así que incluimos el archivo necesario aquí (la implementación)
-#include <Keypad.h> 
-
-// Usamos el namespace de IoAbstraction para ser explícitos
-using namespace ioa; 
-
-// --- Implementación del Constructor ---
-KeypadManager::KeypadManager(byte i2cAddress) {
-    // 1. Inicializar la abstracción del PCF8574 (dirección, 8 pines)
-    // Usamos ioFrom8574 para crear la referencia I/O
-    _pcf8574Io = ioFrom8574(i2cAddress);
+KeypadManager::KeypadManager(byte i2cAddress) 
+    : _i2cAddress(i2cAddress), _lastKey(NO_KEY) {
     
-    // 2. Crear la instancia del Keypad con los pines abstractos
-    // Pasamos el puntero de la abstracción I/O que creamos
-    _keypad = new BasicMatrixKeyboard(
-        _pcf8574Io, 
-        (char*)keys, 
-        rowPins, 
-        colPins, 
-        ROWS, 
-        COLS
-    );
+    // --- CORRECCIÓN 1: El constructor ---
+    // El orden correcto es (address, wire)
+    _keypad = new I2CKeyPad(_i2cAddress, &Wire);
 }
 
-// --- Implementación del Método de Inicialización ---
 void KeypadManager::begin() {
-    // Configurar todos los pines del PCF8574
-    // Filas (P0-P3) como entrada con pull-up (el expansor lo maneja internamente)
-    _pcf8574Io->initPin(0, INPUT_PULLUP);
-    _pcf8574Io->initPin(1, INPUT_PULLUP);
-    _pcf8574Io->initPin(2, INPUT_PULLUP);
-    _pcf8574Io->initPin(3, INPUT_PULLUP);
-
-    // Columnas (P4-P7) como salida
-    _pcf8574Io->initPin(4, OUTPUT);
-    _pcf8574Io->initPin(5, OUTPUT);
-    _pcf8574Io->initPin(6, OUTPUT);
-    _pcf8574Io->initPin(7, OUTPUT);
-
-    // Inicializar el teclado
-    _keypad->initialise();
-    Serial.println("[Keypad] IoAbstraction inicializado.");
+    // Wire.begin() se llama en main.cpp
+    _keypad->begin();
+    
+    // --- CORRECCIÓN 2: makeKeymap no existe ---
+    // Solo le pasamos el puntero a nuestro array de 'keys'
+    _keypad->loadKeyMap((char*)keys); 
+    
+    Serial.println("[Keypad] I2CKeyPad (robtillaart) inicializado.");
 }
 
-// --- Implementación del Método de Lectura Directa ---
+/**
+ * @brief Lee una tecla.
+ * Adaptamos la lógica para que solo devuelva una pulsación nueva.
+ */
 char KeypadManager::readKey() {
-    // "Tick" necesario para que IoAbstraction lea el estado actual del PCF8574 por I2C
-    _pcf8574Io->giveATick(); 
-    return _keypad->getChar();
+    if (_keypad->isPressed()) {
+        char key = _keypad->getKey();
+        if (key != _lastKey) { 
+            _lastKey = key; 
+            return key;
+        }
+    } else {
+        _lastKey = NO_KEY;
+    }
+    return NO_KEY;
 }
 
-// --- Implementación del Método de Captura de Monto ---
+/**
+ * @brief Captura el monto.
+ * ¡Esta función NO necesita cambios!
+ * La adaptamos en readKey() para que funcione igual.
+ */
 String KeypadManager::getAmount() {
     String amount = "";
     char key = NO_KEY;
+    _lastKey = NO_KEY; 
     
     Serial.println("[Keypad] Esperando ingreso. Finalizar con #.");
     
@@ -64,12 +53,10 @@ String KeypadManager::getAmount() {
         key = readKey(); 
         
         if (key != NO_KEY) {
-            // Permitir solo dígitos y el punto decimal
             if (isDigit(key) || key == '.') {
                 amount += key;
                 Serial.print(key);
             } 
-            // Usamos '*' como borrado/corrección (backspace)
             else if (key == '*') {
                 if (amount.length() > 0) {
                     amount.remove(amount.length() - 1);
@@ -77,7 +64,6 @@ String KeypadManager::getAmount() {
                 }
             }
             
-            // Si la tecla no es el final (#), esperar para evitar rebotes
             if (key != '#') {
                 delay(200); 
             }
