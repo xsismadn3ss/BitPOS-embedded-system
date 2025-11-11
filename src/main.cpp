@@ -9,6 +9,8 @@
 #include "services/RFIDManager.h"
 #include "services/KeypadManager.h"
 
+#define KEYPAD_TEST_MODE 1
+
 // --- Definición de Pines y Constantes ---
 
 // Pines I2C
@@ -46,10 +48,36 @@ void setup() {
     rfid.begin(); 
     keypad.begin(); 
     
-    Serial.println("\n[SYSTEM] Project TPO Ready.");
+    #if KEYPAD_TEST_MODE
+        Serial.println("\n[SYSTEM] *** MODO TEST KEYPAD ACTIVADO ***");
+        oled.showPrompt("MODO TEST KEYPAD", "Revisar Monitor");
+    #else
+        Serial.println("\n[SYSTEM] Project TPO Ready.");
+        // (El StateManager se encargará de la pantalla de bienvenida)
+    #endif
 }
 
 void loop() {
-    appManager.run();
-    delay(10); 
+    #if KEYPAD_TEST_MODE
+        // --- MODO TEST ---
+        char key = keypad.readKey();
+        
+        if (key != NO_KEY) {
+            Serial.print("[KEYPAD TEST] Tecla presionada: ");
+            Serial.println(key);
+            
+            // Mostramos en la OLED también
+            oled.showPrompt("Tecla presionada:", String(key));
+            
+            // Pequeño delay para evitar lecturas múltiples (debounce)
+            delay(200); 
+        }
+
+    #else
+        // --- MODO PRODUCCIÓN ---
+        appManager.run();
+    
+    #endif
+    
+    delay(10);
 }
