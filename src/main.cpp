@@ -9,7 +9,7 @@
 #include "services/RFIDManager.h"
 #include "services/KeypadManager.h"
 
-#define KEYPAD_TEST_MODE 1
+#define KEYPAD_TEST_MODE 0
 
 // --- Definición de Pines y Constantes ---
 
