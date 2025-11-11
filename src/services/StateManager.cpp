@@ -31,7 +31,7 @@ void StateManager::run() {
 // --- Lógica Privada de los Estados ---
 
 void StateManager::handleIdle() {
-    _oled.showMessage("Presiona 'A' para iniciar", 2);
+    _oled.showMessage("Presiona \n'A' para \niniciar", 2);
 
     char key = _keypad.readKey();
     
@@ -108,15 +108,40 @@ void StateManager::handleWaitingRFID() {
 }
 
 void StateManager::handleTransactionComplete() {
-    _oled.showCardUID(_uid);
     
-    // Aquí iría la llamada al WiFiManager, pero por ahora solo esperamos
-    // wifiManager.sendTransaction(_currentAmount, _uid);
+    // 1. Notificar al usuario que la transacción ha comenzado
+    _oled.showPrompt("Iniciando", "Transaccion...");
+    Serial.println("[API] Simulando llamada a API...");
 
-    delay(5000); 
     
-    // Reiniciar y limpiar variables
+    // 2. SIMULACIÓN DE LLAMADA A API (El espacio que pediste)
+    // ------------------ ZONA DE API FUTURA ------------------
+    //
+    // Aquí es donde, más adelante, llamarás a tu WiFiManager
+    // o HTTPManager para enviar los datos.
+    //
+    // bool exito = httpManager.sendTransaction(_currentAmount, _uid);
+    //
+    // Por ahora, solo simulamos la espera de la red (2.5 segundos)
+    delay(1200); 
+    //
+    // --------------------------------------------------------
+    
+    // (Asumimos que la transacción fue exitosa, 'exito == true')
+
+    
+    // 3. Notificar al usuario que la transacción fue exitosa
+    _oled.showPrompt("Transaccion", "REALIZADA");
+    Serial.println("[API] Transaccion Realizada (simulada).");
+
+    
+    // 4. Pausa para que el usuario pueda leer el mensaje de éxito
+    delay(2000); // 2 segundos
+    
+    
+    // 5. Reiniciar y limpiar variables para la siguiente transacción
     _uid = "";
     _currentAmount = 0.0;
+    _amountHandler.reset(); // ¡Importante! Resetear el manejador de monto
     _currentState = STATE_IDLE; 
 }
