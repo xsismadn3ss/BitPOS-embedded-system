@@ -1,0 +1,2 @@
+## BitPOS
+Punto de pago con soporte para transacciones con Bitcoin, este prototipo busca mejorar la adopción del uso de Bitcoin. Mostrando un caso de uso para pagar de bitcoin de una forma intuitiva y fácil.
