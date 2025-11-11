@@ -58,21 +58,19 @@ void OLEDManager::showWelcomeMessage(String rc522_status)
 /**
  * Muestra el monto a pagar y la instrucción de acercar tarjeta.
  */
-void OLEDManager::showAmountToPay(float amount)
-{
+void OLEDManager::showAmountToPay(float amount) {
     _display.clearDisplay();
-    _display.setTextSize(2); // Tamaño grande
-    _display.setCursor(0, 0);
+    _display.setTextSize(2); 
+    _display.setCursor(0,0);
     _display.print("$");
-    _display.println(amount, 2); // Muestra el monto con 2 decimales
+    _display.println(amount, 2); 
 
-    _display.setTextSize(1); // Tamaño normal
+    _display.setTextSize(1); 
     _display.setCursor(0, 24);
     _display.println("Acercar tarjeta");
-    _display.println("para pagar.");
+    _display.println("C: Cancelar");
     _display.display();
 }
-
 /**
  * Muestra el UID de la tarjeta detectada.
  */
@@ -85,5 +83,22 @@ void OLEDManager::showCardUID(String uid)
     _display.setTextSize(1);
     _display.setCursor(0, 24);
     _display.println(uid);
+    _display.display();
+}
+
+/**
+ * Mostrar entrada ingresada
+ */
+void OLEDManager::showAmountEntry(String amountStr) {
+    _display.clearDisplay();
+    _display.setTextSize(2); 
+    _display.setCursor(0,0);
+    _display.print("$");
+    _display.println(amountStr); 
+
+    _display.setTextSize(1); 
+    _display.setCursor(0, 24);
+    _display.println("B:Borrar C:Aceptar");
+    _display.println("*:Punto Decimal");
     _display.display();
 }

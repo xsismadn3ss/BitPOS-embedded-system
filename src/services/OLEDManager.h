@@ -21,6 +21,7 @@ public:
     void showMessage(String value, uint8_t size);
     void showAmountToPay(float amount);
     void showCardUID(String uid);
+    void showAmountEntry(String amountStr);
 
 private:
     // Referencia privada a la instancia de la pantalla para poder manipularla.
