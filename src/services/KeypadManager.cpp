@@ -3,44 +3,60 @@
 
 KeypadManager::KeypadManager(byte i2cAddress) 
     : _i2cAddress(i2cAddress), _lastKey(NO_KEY) {
-    
-    // --- CORRECCIÓN 1: El constructor ---
-    // El orden correcto es (address, wire)
+    // Constructor correcto (address, wire)
     _keypad = new I2CKeyPad(_i2cAddress, &Wire);
 }
 
 void KeypadManager::begin() {
-    // Wire.begin() se llama en main.cpp
     _keypad->begin();
     
-    // --- CORRECCIÓN 2: makeKeymap no existe ---
-    // Solo le pasamos el puntero a nuestro array de 'keys'
-    _keypad->loadKeyMap((char*)keys); 
+    // --- CORRECCIÓN 1 ---
+    // La función loadKeyMap() que usé era de la librería incorrecta.
+    // La eliminamos, ya que no hace lo que pensábamos.
+    // _keypad->loadKeyMap((char*)keys); 
     
     Serial.println("[Keypad] I2CKeyPad (robtillaart) inicializado.");
+    Serial.println("[Keypad] Mapeo de teclas manual activado.");
 }
 
 /**
  * @brief Lee una tecla.
- * Adaptamos la lógica para que solo devuelva una pulsación nueva.
+ * ¡Aquí está la magia!
  */
 char KeypadManager::readKey() {
+    // Revisa si hay una tecla presionada
     if (_keypad->isPressed()) {
-        char key = _keypad->getKey();
-        if (key != _lastKey) { 
-            _lastKey = key; 
-            return key;
+        
+        // --- CORRECCIÓN 2: Mapeo Manual ---
+        // 1. Obtener el ÍNDICE (0-15) de la librería
+        int keyIndex = _keypad->getKey(); 
+
+        // 2. Convertir el índice lineal (0-15) a coordenadas (fila, col)
+        int row = keyIndex / COLS; // División entera (ej. 7 / 4 = 1)
+        int col = keyIndex % COLS; // Módulo/Resto (ej. 7 % 4 = 3)
+
+        // 3. Obtener el CARÁCTER de nuestro mapa
+        // (ej. si keyIndex es 7, esto es keys[1][3] que es 'B')
+        char key = keys[row][col];
+        // --- FIN CORRECCIÓN 2 ---
+
+        // 4. Lógica de debounce (evitar repeticiones si se deja presionado)
+        if (key != _lastKey) {
+            _lastKey = key; // Guardar la tecla actual
+            return key;     // Devolver la nueva tecla
         }
     } else {
+        // Si no hay nada presionado, resetear
         _lastKey = NO_KEY;
     }
-    return NO_KEY;
+
+    return NO_KEY; // No hay tecla nueva
 }
 
 /**
  * @brief Captura el monto.
  * ¡Esta función NO necesita cambios!
- * La adaptamos en readKey() para que funcione igual.
+ * Sigue funcionando porque ya arreglamos readKey().
  */
 String KeypadManager::getAmount() {
     String amount = "";
