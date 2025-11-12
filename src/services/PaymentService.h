@@ -15,7 +15,7 @@ public:
      * @param baseUrl La URL base de la API (ej. "http://bitpos.duckdns.org/api/tx")
      * @param merchantWalletId El ID de la wallet del comerciante (fijo para este TPV).
      */
-    PaymentService(WiFiManager& wifiManager, const char* baseUrl, const char* merchantWalletId);
+    PaymentService(WiFiManager& wifiManager, const char* baseUrl, int merchantWalletId);
 
     /**
      * @brief Llama al endpoint /payments para registrar el pago.
@@ -28,7 +28,7 @@ public:
 private:
     WiFiManager& _wifi;
     String _paymentUrl; // URL completa al endpoint /payments
-    const char* _merchantWalletId; // ID de la wallet del comerciante
+    int _merchantWalletId; // ID de la wallet del comerciante
 };
 
 #endif

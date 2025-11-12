@@ -4,7 +4,7 @@
 #include <ArduinoJson.h>
 #include <WiFiClientSecure.h>
 
-PaymentService::PaymentService(WiFiManager& wifiManager, const char* baseUrl, const char* merchantWalletId)
+PaymentService::PaymentService(WiFiManager& wifiManager, const char* baseUrl, int merchantWalletId)
     : _wifi(wifiManager), _merchantWalletId(merchantWalletId) {
     // Construimos la URL completa al endpoint de pagos
     _paymentUrl = String(baseUrl) + "/payments";
