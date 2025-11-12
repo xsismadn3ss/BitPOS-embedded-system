@@ -21,7 +21,7 @@ public:
      * @param usdAmount El monto en USD (float, ej: 12.50).
      * @return El valor equivalente en BTC (double, ej: 0.000123) o 0.0 si falla.
      */
-    double convertUsdToBtc(float usdAmount);
+    long convertUsdToBtc(float usdAmount);
 
 private:
     WiFiManager& _wifi;
