@@ -2,6 +2,7 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <ArduinoJson.h>
+#include <WiFiClientSecure.h>
 
 PaymentService::PaymentService(WiFiManager& wifiManager, const char* baseUrl, const char* merchantWalletId)
     : _wifi(wifiManager), _merchantWalletId(merchantWalletId) {
@@ -27,8 +28,10 @@ bool PaymentService::processPayment(String cardUID, double btcAmount) {
     serializeJson(requestDoc, requestPayload);
 
     // 3. Preparar el cliente HTTP
-    WiFiClient client;
+    WiFiClientSecure client;
     HTTPClient http;
+
+    client.setInsecure();
 
     Serial.println("[PaymentSvc] POST a: " + _paymentUrl);
     Serial.println("[PaymentSvc] Payload: " + requestPayload);
