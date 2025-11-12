@@ -9,9 +9,13 @@
 class OLEDManager;
 class RFIDManager;
 class KeypadManager;
+class WiFiManager;
+class CurrencyService;
+class PaymentService;
 
 // Definición de los estados
-enum AppState {
+enum AppState
+{
     STATE_IDLE,
     STATE_ENTERING_AMOUNT,
     STATE_WAITING_RFID,
@@ -23,19 +27,28 @@ enum AppState {
  * @brief Gestiona la máquina de estados de la aplicación, implementando
  * el Principio de Responsabilidad Única para el flujo del programa.
  */
-class StateManager {
+class StateManager
+{
 public:
     // Constructor: Recibe referencias a todos los Managers que necesita coordinar
-    StateManager(OLEDManager& oled, RFIDManager& rfid, KeypadManager& keypad);
+    StateManager(OLEDManager &oled,
+                 RFIDManager &rfid,
+                 KeypadManager &keypad,
+                 WiFiManager& wifi,
+                 CurrencyService &currencySvc,
+                 PaymentService &paymentSvc);
 
     // El método principal que reemplaza el 'switch' en el loop()
     void run();
 
 private:
     // Referencias privadas a los Managers
-    OLEDManager& _oled;
-    RFIDManager& _rfid;
-    KeypadManager& _keypad;
+    OLEDManager &_oled;
+    RFIDManager &_rfid;
+    KeypadManager &_keypad;
+    WiFiManager& _wifi;
+    CurrencyService& _currencySvc;
+    PaymentService& _paymentSvc;
 
     // Estado actual de la aplicación
     AppState _currentState;
