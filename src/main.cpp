@@ -4,13 +4,13 @@
 #include <Adafruit_SSD1306.h>
 
 // Incluir servicios
-#include "services/StateManager.h"
-#include "services/OLEDManager.h"
-#include "services/RFIDManager.h"
-#include "services/KeypadManager.h"
-#include "services/WifiManager.h"
-#include "services/CurrencyService.h"
-#include "services/PaymentService.h"
+#include <StateManager.h>
+#include <OLEDManager.h>
+#include <RFIDManager.h>
+#include <KeypadManager.h>
+#include <WifiManager.h>
+#include <CurrencyService.h>
+#include <PaymentService.h>
 
 // --- Definición de Pines y Constantes ---
 
