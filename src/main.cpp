@@ -57,7 +57,7 @@ void setup() {
     if (!wifi.connect()) {
         // ¡FALLÓ LA CONEXIÓN!
         Serial.println("\n[SYSTEM] FATAL: Falla de WiFi. Deteniendo.");
-        oled.showPrompt("ERROR DE RED", "Reiniciar TPV");
+        oled.showPrompt("ERROR DE RED", "Reiniciar POS");
         
         // Detener todo. No podemos continuar.
         while(true) {
@@ -76,7 +76,7 @@ void setup() {
         Serial.println("\n[SYSTEM] *** MODO TEST KEYPAD ACTIVADO ***");
         oled.showPrompt("MODO TEST KEYPAD", "Revisar Monitor");
     #else
-        Serial.println("\n[SYSTEM] Project TPO Ready.");
+        Serial.println("\n[SYSTEM] POS listo!.");
         // (El StateManager mostrará la bienvenida)
     #endif
 }
